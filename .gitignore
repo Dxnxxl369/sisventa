@@ -1,0 +1,20 @@
+# --- Entornos Virtuales y Dependencias ---
+venv/
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- Archivos de Configuración de Django / Python ---
+.env
+*.sqlite3
+db.sqlite3
+/media/
+/static/
+
+# --- Configuraciones de IDE (VS Code, IntelliJ, etc.) ---
+.vscode/
+.idea/
+*.iml
