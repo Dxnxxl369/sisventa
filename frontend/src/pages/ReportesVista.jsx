@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/*import React, { useState } from 'react';
 
 // --- Mock Data --- //
 // This data would normally come from an API call based on sales records.
@@ -73,8 +73,8 @@ const ReportesVista = () => {
         <h1 className="text-3xl font-bold text-gray-800">Reportes de Ventas</h1>
       </div>
 
-      {/* Sección para Comandos de Voz (Diseño Preliminar) */}
-      <div className="bg-white p-4 rounded-lg shadow-lg mb-8">
+      {/* Sección para Comandos de Voz (Diseño Preliminar) */
+  /*    <div className="bg-white p-4 rounded-lg shadow-lg mb-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Comando de Voz (Experimental)</h2>
         <p className="text-sm text-gray-600 mb-3">Escriba un comando como "muéstrame los más vendidos" y presione Enter.</p>
         <div className="flex gap-2">
@@ -93,8 +93,8 @@ const ReportesVista = () => {
         <p className="text-xs text-gray-500 mt-2">*En el futuro, esto funcionará con un micrófono.*</p>
       </div>
 
-      {/* Contenedor de Reportes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Contenedor de Reportes */
+    /*  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ReportCard 
           title="Top 5 Más Vendidos" 
           data={sampleReportData.masVendidos} 
@@ -115,6 +115,131 @@ const ReportesVista = () => {
         />
       </div>
     </div>
+  );
+};
+
+export default ReportesVista;
+*/
+
+import React, { useState } from 'react';
+import { Container, Card, Alert, Table, Badge } from 'react-bootstrap';
+import VoiceCommandButton from '../components/VoiceCommandButton'; // Importamos el nuevo componente
+
+const ReportesVista = () => {
+  const [reportResult, setReportResult] = useState(null);
+  const [error, setError] = useState('');
+  const [isListening, setIsListening] = useState(false);
+
+  const renderReportData = () => {
+    if (!reportResult || !reportResult.data) return null;
+
+    const { data_type, data } = reportResult;
+
+    // Renderizar tabla de productos
+    if (data_type === 'product_list') {
+      return (
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>SKU</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Categoría</th>
+              {data[0]?.total_vendido !== undefined && <th>Total Vendido</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={item.id}>
+                <td>{index + 1}</td>
+                <td>{item.nombre}</td>
+                <td>{item.sku || 'N/A'}</td>
+                <td>${parseFloat(item.precio).toFixed(2)}</td>
+                <td>
+                  <Badge bg={item.stock <= 10 ? 'danger' : 'success'}>{item.stock}</Badge>
+                </td>
+                <td>{item.categoria_nombre || 'Sin categoría'}</td>
+                {item.total_vendido !== undefined && <td>{item.total_vendido}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      );
+    }
+    
+    // Renderizar tabla de mejores clientes
+    if (data_type === 'client_list_summary') {
+        return (
+            <Table striped bordered hover responsive>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre Cliente</th>
+                        <th>Email</th>
+                        <th>N° Compras</th>
+                        <th>Total Gastado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((item, index) => (
+                        <tr key={item.id}>
+                            <td>{index + 1}</td>
+                            <td>{item.nombre} {item.apellido}</td>
+                            <td>{item.email}</td>
+                            <td><Badge bg="info">{item.numero_compras}</Badge></td>
+                            <td><Badge bg="success">${parseFloat(item.total_comprado).toFixed(2)}</Badge></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        );
+    }
+    
+    // Si es otro tipo de dato, mostramos un JSON (ej. Ventas)
+    return <pre>{JSON.stringify(data, null, 2)}</pre>;
+  };
+
+  return (
+    <Container fluid className="p-4">
+      <Card>
+        <Card.Header>
+          <Card.Title>Centro de Reportes</Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <p>Usa el comando de voz para generar reportes. Ejemplos:</p>
+          <ul>
+            <li>"Muéstrame los productos más vendidos"</li>
+            <li>"¿Qué productos tienen poco stock?"</li>
+            <li>"Quiero ver los mejores clientes"</li>
+            <li>"Reporte de ventas del último mes"</li>
+          </ul>
+          <div className="mb-4">
+            <VoiceCommandButton
+              onResult={setReportResult}
+              onError={setError}
+              onListeningChange={setIsListening}
+            />
+             {isListening && <span className="ms-3 fst-italic text-primary">Habla ahora...</span>}
+          </div>
+
+          {error && <Alert variant="danger">{error}</Alert>}
+          
+          {reportResult && (
+            <Card className="mt-4">
+              <Card.Header>
+                <Card.Title as="h5">{reportResult.title}</Card.Title>
+              </Card.Header>
+              <Card.Body>
+                {renderReportData()}
+              </Card.Body>
+            </Card>
+          )}
+
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
 

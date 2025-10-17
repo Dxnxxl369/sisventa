@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+export const API_URL = 'http://127.0.0.1:8000/api';
 const apiClient = axios.create({
   baseURL: 'http://127.0.0.1:8000/', // URL base del backend
   headers: {
@@ -55,6 +56,8 @@ const api = {
   getVentas: () => apiClient.get('/api/ventas/'),
   getVenta: (id) => apiClient.get(`/api/ventas/${id}/`),
   createVenta: (data) => apiClient.post('/api/ventas/', data),
+
+  procesoVoideCommand: (commandText) => apiClient.post('/api/voice-command/', { command: commandText }),
 
   // --- Reportes ---
   getMasVendidos: () => apiClient.get('/api/reportes/productos_mas_vendidos/'),
